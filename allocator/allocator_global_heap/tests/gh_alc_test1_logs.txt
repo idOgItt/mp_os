@@ -1,0 +1,8 @@
+03.04.2024  18:52:04 DEBUG allocator_global_heap::constructor
+03.04.2024  18:52:04 DEBUG allocator_global_heap::allocate
+03.04.2024  18:52:04 DEBUG allocator_global_heap::destructor
+03.04.2024  18:52:04 DEBUG allocator_global_heap::constructor
+03.04.2024  18:52:04 DEBUG allocator_global_heap::deallocate.start
+03.04.2024  18:52:04 DEBUG Bytes to free: 0
+03.04.2024  18:52:04 DEBUG allocator_global_heap::deallocate.end
+03.04.2024  18:52:04 DEBUG allocator_global_heap::destructor

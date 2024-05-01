@@ -1,0 +1,3 @@
+/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/allocator/allocator_global_heap/tests/_deps/googletest-subbuild/CMakeFiles/googletest-populate.dir
+/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/allocator/allocator_global_heap/tests/_deps/googletest-subbuild/CMakeFiles/edit_cache.dir
+/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/allocator/allocator_global_heap/tests/_deps/googletest-subbuild/CMakeFiles/rebuild_cache.dir

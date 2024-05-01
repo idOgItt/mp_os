@@ -1,0 +1,21 @@
+# ninja log v5
+0	8	1713778110208430825	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-mkdir	2ba90193e8d8586b
+0	8	1713778110208430825	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-mkdir	2ba90193e8d8586b
+9	735	1713778110932487411	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-download	88bb17bbe0755924
+9	735	1713778110932487411	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-download	88bb17bbe0755924
+735	737	1713778110936487724	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-update	4e7eb414764aad25
+735	737	1713778110936487724	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-update	4e7eb414764aad25
+738	740	1713778110936487724	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-patch	37974dd4c42dbeb1
+738	740	1713778110936487724	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-patch	37974dd4c42dbeb1
+740	743	1713778110940488036	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-configure	fb9e8c2cef172f6e
+740	743	1713778110940488036	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-configure	fb9e8c2cef172f6e
+743	746	1713778110944488349	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-build	772870793edf5eee
+743	746	1713778110944488349	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-build	772870793edf5eee
+746	749	1713778110948488662	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-install	19f5b891dd8e45c6
+746	749	1713778110948488662	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-install	19f5b891dd8e45c6
+749	753	1713778110952488974	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-test	85cde5314e7a44f1
+749	753	1713778110952488974	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-test	85cde5314e7a44f1
+753	756	1713778110956489287	CMakeFiles/googletest-populate-complete	fb45d23c4272716a
+753	756	1713778110956489287	googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-done	fb45d23c4272716a
+753	756	1713778110956489287	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/CMakeFiles/googletest-populate-complete	fb45d23c4272716a
+753	756	1713778110956489287	/home/stardust/Work/University/MAI_Math_Practicum_2/mp_os/cmake-build-default/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-done	fb45d23c4272716a
