@@ -1,125 +1,415 @@
 #include <gtest/gtest.h>
-#include <cmath>
-#include <allocator.h>
-#include <allocator_buddies_system.h>
-#include <client_logger_builder.h>
 #include <logger.h>
 #include <logger_builder.h>
+#include <client_logger_builder.h>
+#include <list>
+
+#include "../include/allocator_buddies_system.h"
 
 logger *create_logger(
-    std::vector<std::pair<std::string, logger::severity>> const &output_file_streams_setup,
-    bool use_console_stream = true,
-    logger::severity console_stream_severity = logger::severity::debug)
+        std::vector<std::pair<std::string, logger::severity>> const &output_file_streams_setup,
+        bool use_console_stream = true,
+        logger::severity console_stream_severity = logger::severity::debug)
 {
-    logger_builder *logger_builder_instance = new client_logger_builder;
-    
+    logger_builder *builder = new client_logger_builder();
+
     if (use_console_stream)
     {
-        logger_builder_instance->add_console_stream(console_stream_severity);
+        builder->add_console_stream(console_stream_severity);
     }
-    
+
     for (auto &output_file_stream_setup: output_file_streams_setup)
     {
-        logger_builder_instance->add_file_stream(output_file_stream_setup.first, output_file_stream_setup.second);
+        builder->add_file_stream(output_file_stream_setup.first, output_file_stream_setup.second);
     }
-    
-    logger *logger_instance = logger_builder_instance->build();
-    
-    delete logger_builder_instance;
-    
-    return logger_instance;
+
+    logger *built_logger = builder->build();
+
+    delete builder;
+
+    return built_logger;
 }
 
-TEST(positiveTests, test1)
+TEST(allocatorBuddiesSystemPositiveTests, test1)
 {
     logger *logger_instance = create_logger(std::vector<std::pair<std::string, logger::severity>>
-        {
-            {
-                "allocator_buddies_system_positiveTests_test1.txt",
-                logger::severity::information
-            }
-        });
-    allocator *allocator_instance = new allocator_buddies_system(12, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
-    
-    auto actual_blocks_state = dynamic_cast<allocator_test_utils *>(allocator_instance)->get_blocks_info();
-    std::vector<allocator_test_utils::block_info> expected_blocks_state
-        {
-            { .block_size = 4096, .is_block_occupied = false }
-        };
-    
-    ASSERT_EQ(actual_blocks_state.size(), expected_blocks_state.size());
-    for (int i = 0; i < actual_blocks_state.size(); i++)
-    {
-        ASSERT_EQ(actual_blocks_state[i], expected_blocks_state[i]);
-    }
-    
-    delete allocator_instance;
-    delete logger_instance;
+                                                    {
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::information
+                                                            },
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::debug
+                                                            },
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::trace
+                                                            },
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::warning
+                                                            },
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::error
+                                                            },
+                                                            {
+                                                                    "a.txt",
+                                                                    logger::severity::critical
+                                                            }
+                                                    });
+
+    allocator *alloc = new allocator_buddies_system(3000, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
+
+    auto first_block = reinterpret_cast<int *>(alloc->allocate(1, 250));
+
+    auto second_block = reinterpret_cast<char *>(alloc->allocate(1, 250));
+    alloc->deallocate(first_block);
+
+    first_block = reinterpret_cast<int *>(alloc->allocate(3, 245));
+
+    auto *the_same_subject = dynamic_cast<allocator_with_fit_mode *>(alloc);
+    the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_best_fit);
+
+    auto third_block = reinterpret_cast<int *>(alloc->allocate(sizeof(int), 1));
+
+    alloc->deallocate(second_block);
+    alloc->deallocate(first_block);
+    alloc->deallocate(third_block);
+
+    //TODO: Проверка
+
+    delete alloc;
 }
 
-TEST(positiveTests, test2)
+TEST(allocatorSortedListPositiveTests, test2)
+{
+
+    //TODO: logger
+
+    allocator *alloc = new allocator_buddies_system(3000, nullptr, nullptr,
+                                                 allocator_with_fit_mode::fit_mode::the_worst_fit);
+
+    auto first_block = reinterpret_cast<int *>(alloc->allocate(sizeof(int), 250));
+
+    auto *the_same_subject = dynamic_cast<allocator_with_fit_mode *>(alloc);
+    the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::first_fit);
+    auto second_block = reinterpret_cast<char *>(alloc->allocate(sizeof(char), 500));
+    the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_best_fit);
+    auto third_block = reinterpret_cast<double *>(alloc->allocate(sizeof(double *), 100));
+
+    alloc->deallocate(first_block);
+    alloc->deallocate(second_block);
+    alloc->deallocate(third_block);
+
+    //TODO: проверка
+
+    delete alloc;
+}
+
+TEST(allocatorSortedListPositiveTests, test3)
 {
     logger *logger_instance = create_logger(std::vector<std::pair<std::string, logger::severity>>
-        {
-            {
-                "allocator_buddies_system_positiveTests_test1.txt",
-                logger::severity::information
-            }
-        });
-    allocator *allocator_instance = new allocator_buddies_system(8, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
-    
-    void *first_block = allocator_instance->allocate(sizeof(unsigned char), 40);
-    
-    auto actual_blocks_state = dynamic_cast<allocator_test_utils *>(allocator_instance)->get_blocks_info();
-    std::vector<allocator_test_utils::block_info> expected_blocks_state
-        {
-            { .block_size = 64, .is_block_occupied = true },
-            { .block_size = 64, .is_block_occupied = false },
-            { .block_size = 128, .is_block_occupied = false }
-        };
-    
-    ASSERT_EQ(actual_blocks_state.size(), expected_blocks_state.size());
-    for (int i = 0; i < actual_blocks_state.size(); i++)
+                                                    {
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::information
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::debug
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::trace
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::warning
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::error
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::critical
+                                                            }
+                                                    });
+    allocator *allocator = new allocator_buddies_system(5000, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
+
+    int iterations_count = 100;
+
+    std::list<void *> allocated_blocks;
+    srand((unsigned)time(nullptr));
+
+    for (auto i = 0; i < iterations_count; i++)
     {
-        ASSERT_EQ(actual_blocks_state[i], expected_blocks_state[i]);
+        switch (rand() % 2)
+        {
+            case 0:
+                try
+                {
+                    allocated_blocks.push_front(allocator->allocate(sizeof(char), rand() % 251 + 50));
+                    std::cout << "allocation succeeded" << std::endl;
+                }
+                catch (std::bad_alloc const &ex)
+                {
+                    std::cout << ex.what() << std::endl;
+                }
+                break;
+            case 1:
+                if (allocated_blocks.empty())
+                {
+                    std::cout << "No blocks to deallocate" << std::endl;
+
+                    break;
+                }
+
+                auto it = allocated_blocks.begin();
+                std::advance(it, rand() % allocated_blocks.size());
+                allocator->deallocate(*it);
+                allocated_blocks.erase(it);
+                std::cout << "deallocation succeeded" << std::endl;
+                break;
+        }
     }
-    
-    allocator_instance->deallocate(first_block);
-    
-    delete allocator_instance;
-    delete logger_instance;
+
+    while (!allocated_blocks.empty())
+    {
+        auto it = allocated_blocks.begin();
+        std::advance(it, rand() % allocated_blocks.size());
+        allocator->deallocate(*it);
+        allocated_blocks.erase(it);
+        std::cout << "deallocation succeeded" << std::endl;
+    }
+
+    //TODO: проверка
+
+    delete allocator;
+    // delete logger;
+
+
 }
 
-TEST(positiveTests, test3)
+/*TEST(allocatorSortedListPositiveTests, test4)
 {
-    allocator *allocator_instance = new allocator_buddies_system(8, nullptr, nullptr, allocator_with_fit_mode::fit_mode::first_fit);
-    
-    void *first_block = allocator_instance->allocate(sizeof(unsigned char), 0);
-    void *second_block = allocator_instance->allocate(sizeof(unsigned char), 0);
-    allocator_instance->deallocate(first_block);
-    
-    auto actual_blocks_state = dynamic_cast<allocator_test_utils *>(allocator_instance)->get_blocks_info();
-    ASSERT_EQ(actual_blocks_state.size(), 3);
-    ASSERT_EQ(actual_blocks_state[0].block_size, 1 << (static_cast<int>(std::floor(std::log2(sizeof(allocator::block_pointer_t) * 2 + 1))) + 1));
-    ASSERT_EQ(actual_blocks_state[0].is_block_occupied, false);
-    ASSERT_EQ(actual_blocks_state[0].block_size, actual_blocks_state[1].block_size);
-    ASSERT_EQ(actual_blocks_state[1].is_block_occupied, true);
-    
-    allocator_instance->deallocate(second_block);
-    
-    delete allocator_instance;
+    //TODO: logger
+
+    logger *logger_instance = create_logger(std::vector<std::pair<std::string, logger::severity>>
+                                                    {
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::information
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::debug
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::trace
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::warning
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::error
+                                                            },
+                                                            {
+                                                                    "b.txt",
+                                                                    logger::severity::critical
+                                                            }
+                                                    });
+
+    allocator *alloc = new allocator_buddies_system(1000, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
+
+    auto first_block = reinterpret_cast<unsigned char *>(alloc->allocate(sizeof(unsigned char), 250));
+    auto second_block = reinterpret_cast<unsigned char *>(alloc->allocate(sizeof(char), 150));
+    auto third_block = reinterpret_cast<unsigned char *>(alloc->allocate(sizeof(unsigned char), 300));
+
+    auto *the_same_subject = dynamic_cast<allocator_with_fit_mode *>(alloc);
+    the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_worst_fit);
+    auto four_block = reinterpret_cast<unsigned char *>(alloc->allocate(sizeof(unsigned char), 50));
+
+    the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_best_fit);
+    auto five_block = reinterpret_cast<unsigned char *>(alloc->allocate(sizeof(unsigned char), 50));
+
+    alloc->deallocate(first_block);
+    alloc->deallocate(second_block);
+    alloc->deallocate(third_block);
+    alloc->deallocate(four_block);
+    alloc->deallocate(five_block);
+
+    //TODO: проверка
+
+    delete alloc;
+}
+ */
+
+TEST(allocatorSortedListPositiveTests, test5)
+{
+
+    logger *logger_instance = create_logger(std::vector<std::pair<std::string, logger::severity>>
+                                                    {
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::information
+                                                            },
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::debug
+                                                            },
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::trace
+                                                            },
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::warning
+                                                            },
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::error
+                                                            },
+                                                            {
+                                                                    "c.txt",
+                                                                    logger::severity::critical
+                                                            }
+                                                    });
+
+    logger *logger_instance2 = create_logger(std::vector<std::pair<std::string, logger::severity>>
+                                                     {
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::information
+                                                             },
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::debug
+                                                             },
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::trace
+                                                             },
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::warning
+                                                             },
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::error
+                                                             },
+                                                             {
+                                                                     "cx.txt",
+                                                                     logger::severity::critical
+                                                             }
+                                                     });
+    allocator *alloc = new allocator_buddies_system(4000, nullptr, logger_instance, allocator_with_fit_mode::fit_mode::first_fit);
+
+    auto first_block = reinterpret_cast<int *>(alloc->allocate(sizeof(int), 250));
+    auto second_block = reinterpret_cast<char *>(alloc->allocate(sizeof(char), 500));
+    auto third_block = reinterpret_cast<double *>(alloc->allocate(sizeof(double *), 250));
+    alloc->deallocate(first_block);
+    first_block = reinterpret_cast<int *>(alloc->allocate(sizeof(int), 245));
+
+    //TODO: logger
+    allocator *allocator = new allocator_buddies_system(5000, nullptr, logger_instance2, allocator_with_fit_mode::fit_mode::first_fit);
+    auto *the_same_subject = dynamic_cast<allocator_with_fit_mode *>(alloc);
+    int iterations_count = 1000;
+
+    std::list<void *> allocated_blocks;
+    srand((unsigned)time(nullptr));
+
+    for (auto i = 0; i < iterations_count; i++)
+    {
+        switch (rand() % 2)
+        {
+
+            case 0:
+                try
+                {
+                    switch (rand() % 3)
+                    {
+                        case 0:
+                            the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::first_fit);
+                        case 1:
+                            the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_best_fit);
+                        case 2:
+                            the_same_subject->set_fit_mode(allocator_with_fit_mode::fit_mode::the_worst_fit);
+                    }
+
+                    allocated_blocks.push_front(allocator->allocate(sizeof(char), rand() % 251 + 50));
+                    std::cout << "allocation succeeded" << std::endl;
+                }
+                catch (std::bad_alloc const &ex)
+                {
+                    std::cout << ex.what() << std::endl;
+                }
+                break;
+            case 1:
+                if (allocated_blocks.empty())
+                {
+                    std::cout << "No blocks to deallocate" << std::endl;
+
+                    break;
+                }
+
+                auto it = allocated_blocks.begin();
+                std::advance(it, rand() % allocated_blocks.size());
+                allocator->deallocate(*it);
+                allocated_blocks.erase(it);
+                std::cout << "deallocation succeeded" << std::endl;
+                break;
+        }
+    }
+
+    while (!allocated_blocks.empty())
+    {
+        auto it = allocated_blocks.begin();
+        std::advance(it, rand() % allocated_blocks.size());
+        allocator->deallocate(*it);
+        allocated_blocks.erase(it);
+        std::cout << "deallocation succeeded" << std::endl;
+    }
+
+    //TODO: проверка
+
+    delete allocator;
+    // delete logger;
+
+    delete alloc;
 }
 
-TEST(falsePositiveTests, test1)
+
+//TODO: Тесты на особенность аллокатора?
+
+TEST(allocatorSortedListNegativeTests, test1)
 {
-    ASSERT_THROW(new allocator_buddies_system(static_cast<int>(std::floor(std::log2(sizeof(allocator::block_pointer_t) * 2 + 1))) - 1), std::logic_error);
+    logger *logger = create_logger(std::vector<std::pair<std::string, logger::severity>>
+                                           {
+                                                   {
+                                                           "allocator_sorted_list_tests_logs_negative_test_1.txt",
+                                                           logger::severity::information
+                                                   }
+                                           });
+    allocator *alloc = new allocator_buddies_system(3000, nullptr, logger, allocator_with_fit_mode::fit_mode::first_fit);
+
+    ASSERT_THROW(alloc->allocate(sizeof(char), 6000), std::bad_alloc);
+
+    delete alloc;
+    delete logger;
 }
+
 
 int main(
-    int argc,
-    char *argv[])
+        int argc,
+        char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
-    
+
     return RUN_ALL_TESTS();
 }

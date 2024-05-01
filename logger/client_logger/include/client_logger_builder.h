@@ -1,11 +1,23 @@
 #ifndef MATH_PRACTICE_AND_OPERATING_SYSTEMS_CLIENT_LOGGER_BUILDER_H
 #define MATH_PRACTICE_AND_OPERATING_SYSTEMS_CLIENT_LOGGER_BUILDER_H
 
+#include <map>
+#include <set>
+#include <fstream>
+#include "client_logger.h"
 #include <logger_builder.h>
+#include "nlohmann/json.hpp"
 
 class client_logger_builder final:
     public logger_builder
 {
+
+private:
+
+    std::map<std::string, std::set<logger::severity>> _paths;
+
+
+    std::string _log_structure;
 
 public:
 
@@ -26,6 +38,9 @@ public:
     ~client_logger_builder() noexcept override;
 
 public:
+
+    logger_builder *change_log_structure(
+        const std::string &_log_structure) noexcept;
 
     logger_builder *add_file_stream(
         std::string const &stream_file_path,

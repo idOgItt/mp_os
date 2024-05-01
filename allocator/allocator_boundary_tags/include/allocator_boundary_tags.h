@@ -6,6 +6,7 @@
 #include <allocator_with_fit_mode.h>
 #include <logger_guardant.h>
 #include <typename_holder.h>
+#include <mutex>
 
 class allocator_boundary_tags final:
     private allocator_guardant,
@@ -24,16 +25,16 @@ public:
     ~allocator_boundary_tags() override;
     
     allocator_boundary_tags(
-        allocator_boundary_tags const &other);
+        allocator_boundary_tags const &other) = delete;
     
     allocator_boundary_tags &operator=(
-        allocator_boundary_tags const &other);
+        allocator_boundary_tags const &other) = delete;
     
     allocator_boundary_tags(
-        allocator_boundary_tags &&other) noexcept;
+        allocator_boundary_tags &&other) noexcept = delete;
     
     allocator_boundary_tags &operator=(
-        allocator_boundary_tags &&other) noexcept;
+        allocator_boundary_tags &&other) noexcept = delete;
 
 public:
     
@@ -72,6 +73,47 @@ private:
 private:
     
     inline std::string get_typename() const noexcept override;
+
+private:
+
+    size_t get_ancillary_space_size() const noexcept;
+
+    allocator_with_fit_mode::fit_mode get_fit_mode() const noexcept;
+
+    void *get_first_aviable_block() const noexcept;
+
+private:
+
+    size_t get_available_memory() const noexcept;
+
+    void clear_block(void * block) const noexcept;
+
+    std::string get_blocks_info(std::vector<allocator_test_utils::block_info> info) const noexcept;
+
+    std::string block_status(bool state) const noexcept;
+
+    void * get_first_busy_block() const noexcept;
+
+    allocator::block_size_t get_size_block(
+            void *block_address) const noexcept;
+
+    void * get_end_ptr() const noexcept;
+
+    allocator * get_allocator_from_block(void* block) const noexcept;
+
+    void * get_prev_block(void* block) const noexcept;
+
+    void * get_next_block(void* block) const noexcept;
+
+    void merge_blocks(void* prev, void* next) noexcept;
+
+    void set_first_filled_block(void* block) const noexcept;
+
+    size_t get_size_memory() const noexcept;
+
+    std::mutex & get_mutex() const noexcept;
+
+    std::string get_block_info(void * block) const noexcept;
     
 };
 

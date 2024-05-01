@@ -4,7 +4,7 @@
 
 server_logger_builder::server_logger_builder()
 {
-    throw not_implemented("server_logger_builder::server_logger_builder()", "your code should be here...");
+   set::map<std::string, std::pair<mqd_t, size_t>> server_logger::queues_users = std::map<mqd_t, size_t>>();
 }
 
 server_logger_builder::server_logger_builder(

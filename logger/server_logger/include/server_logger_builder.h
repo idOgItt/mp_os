@@ -3,9 +3,29 @@
 
 #include <logger_builder.h>
 
+#include <cstring>
+//#include "../../../common/mini/ini.h"
+#include "../../logger/include/logger_builder.h"
+#include "server_logger.h"
+
+#ifdef _WIN32
+    #define STREAM "CONSOLE"
+    #include <conio.h>
+    #include <windows.h>
+#else
+    #define STREAM "/dev/tty"
+    #include <unistd.h>
+    #include <mqueue.h>
+    #include <sys/fcntl.h>
+    #include <sys/stat.h>
+    #include <sys/types.h>
+#endif
+
 class server_logger_builder final:
     public logger_builder
 {
+    std::map<std::string, std::pair<mqd_t, size_t>> _queques;
+    std::map<std::string, std::set<logger::severity>> keys;
 
 public:
 

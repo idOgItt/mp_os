@@ -5,6 +5,7 @@
 #include <logger.h>
 #include <logger_guardant.h>
 #include <typename_holder.h>
+#include "../../logger/client_logger/include/client_logger.h"
 
 class allocator_global_heap final:
     public allocator,
@@ -19,7 +20,7 @@ private:
 public:
     
     explicit allocator_global_heap(
-        logger *logger = nullptr);
+        client_logger::logger *logger = nullptr);
     
     ~allocator_global_heap() override;
     
@@ -30,10 +31,10 @@ public:
         allocator_global_heap const &other) = delete;
     
     allocator_global_heap(
-        allocator_global_heap &&other) noexcept;
+        allocator_global_heap &&other) noexcept = default;
     
     allocator_global_heap &operator=(
-        allocator_global_heap &&other) noexcept;
+        allocator_global_heap &&other) noexcept = default;
 
 public:
     
@@ -51,7 +52,7 @@ public:
 
 private:
     
-    inline logger *get_logger() const override;
+    inline client_logger::logger *get_logger() const override;
 
 private:
     
