@@ -42,9 +42,9 @@ public:
         public binary_search_tree<tkey, tvalue>::iterator_data
     {
 
-        friend void AVL_tree<tkey, tvalue>::inject_additional_data(
-                typename binary_search_tree<tkey, tvalue>::iterator_data *destination,
-                typename binary_search_tree<tkey, tvalue>::node const *source) const ;
+//        friend void AVL_tree<tkey, tvalue>::inject_additional_data(
+//                typename binary_search_tree<tkey, tvalue>::iterator_data *destination,
+//                typename binary_search_tree<tkey, tvalue>::node const *source) const ;
 
 
 
@@ -147,9 +147,9 @@ private:
             typename binary_search_tree<tkey,tvalue>::node *destination,
             typename binary_search_tree<tkey,tvalue>::node const *source) const override;
 
-    void inject_additional_data(
-            typename binary_search_tree<tkey,tvalue>::iterator_data *destination,
-            typename binary_search_tree<tkey,tvalue>::node const *source) const override;
+//    void inject_additional_data(
+//            typename binary_search_tree<tkey,tvalue>::iterator_data *destination,
+//            typename binary_search_tree<tkey,tvalue>::node const *source) const override;
 
     static inline unsigned int get_subtree_height(
             typename binary_search_tree<tkey,tvalue>::node* node) noexcept;
@@ -522,18 +522,18 @@ void AVL_tree<tkey, tvalue>::inject_additional_data(
     avl_destination->_balance = avl_source->_balance;
 }
 
-template<
-        typename tkey,
-        typename tvalue>
-void AVL_tree<tkey, tvalue>::inject_additional_data(
-        typename binary_search_tree<tkey,tvalue>::iterator_data *destination,
-        typename binary_search_tree<tkey,tvalue>::node const *source) const
-{
-    auto *avl_destination = dynamic_cast<AVL_tree<tkey, tvalue>::iterator_data*>(destination);
-    auto *avl_source = dynamic_cast<AVL_tree<tkey, tvalue>::node const*>(source);
-
-    avl_destination->subtree_height = avl_source->_balance;
-}
+//template<
+//        typename tkey,
+//        typename tvalue>
+//void AVL_tree<tkey, tvalue>::inject_additional_data(
+//        typename binary_search_tree<tkey,tvalue>::iterator_data *destination,
+//        typename binary_search_tree<tkey,tvalue>::node const *source) const
+//{
+//    auto *avl_destination = dynamic_cast<AVL_tree<tkey, tvalue>::iterator_data*>(destination);
+//    auto *avl_source = dynamic_cast<AVL_tree<tkey, tvalue>::node const*>(source);
+//
+//    avl_destination->subtree_height = avl_source->_balance;
+//}
 
 template<
         typename tkey,
@@ -631,7 +631,6 @@ template<typename tkey, typename tvalue>
 template<typename avl_tvalue>
 void AVL_tree<tkey, tvalue>::avl_insert(const tkey &key, avl_tvalue &&value, std::stack<typename binary_search_tree<tkey, tvalue>::node**> & stack)
 {
-
     (*stack.top()) = static_cast<typename binary_search_tree<tkey, tvalue>::node*>(static_cast<node*>(allocator_guardant::allocate_with_guard(sizeof(node), 1)));
 
     try {
@@ -652,29 +651,26 @@ void AVL_tree<tkey, tvalue>::avl_insert(const tkey &key, avl_tvalue &&value, std
         int balance = static_cast<node*>(*stack.top())->get_balance();
 
         if (balance > 1 && (*stack.top())->left_subtree != nullptr && (*stack.top())->left_subtree == (*stack.top())->left_subtree->left_subtree){
-            binary_search_tree<tkey, tvalue>::small_right_rotation(*stack.top());
+            binary_search_tree<tkey, tvalue>::big_left_rotation(*stack.top());
+            static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
             static_cast<node*>((*stack.top()))->change_balance();
         }
         else if (balance > 1) {
+            binary_search_tree<tkey, tvalue>::small_left_rotation(*stack.top());
+            static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
+            static_cast<node*>((*stack.top()))->change_balance();
+        }
+        else if (balance < -1 && (*stack.top())->right_subtree != nullptr && (*stack.top())->right_subtree == (*stack.top())->right_subtree->right_subtree) {
             binary_search_tree<tkey, tvalue>::big_right_rotation(*stack.top());
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
             static_cast<node*>((*stack.top()))->change_balance();
         }
-        else if (balance < -1 && (*stack.top())->right_subtree != nullptr && (*stack.top())->right_subtree == (*stack.top())->right_subtree->right_subtree) {
-            binary_search_tree<tkey, tvalue>::small_left_rotation(*stack.top());
-            static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
-            static_cast<node*>((*stack.top()))->change_balance();
-        }
         else if (balance < -1){
-            binary_search_tree<tkey, tvalue>::big_left_rotation(*stack.top());
-            //if (static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree) != nullptr)
-                static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
-            //if (static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree) != nullptr)
-                static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
-            //if (static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree) != nullptr)
-                static_cast<node*>((*stack.top()))->change_balance();
+            binary_search_tree<tkey, tvalue>::small_right_rotation(*stack.top());
+            static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
+            static_cast<node*>((*stack.top()))->change_balance();
         }
 
         stack.pop();

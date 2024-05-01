@@ -591,7 +591,7 @@ TEST(binarySearchTreePositiveTests, test11)
             { 9, "h" }
         };
     
-    EXPECT_TRUE(!compare_results(expected_result, actual_result));
+    EXPECT_TRUE(compare_results(expected_result, actual_result));
     
     logger->trace("binarySearchTreePositiveTests.test11 finished");
     
