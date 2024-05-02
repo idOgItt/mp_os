@@ -63,10 +63,6 @@ public:
                 tvalue const &value = tvalue(),
                 size_t subtree_height = 0);
 
-//
-//        explicit iterator_data(
-//                unsigned int depth,
-//                node **src_node);
 
         iterator_data(
                 iterator_data const &other);
