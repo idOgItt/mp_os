@@ -650,18 +650,19 @@ void AVL_tree<tkey, tvalue>::avl_insert(const tkey &key, avl_tvalue &&value, std
 
         int balance = static_cast<node*>(*stack.top())->get_balance();
 
-        if (balance > 1 && (*stack.top())->left_subtree != nullptr && (*stack.top())->left_subtree == (*stack.top())->left_subtree->left_subtree){
+        if (balance > 1 && (*stack.top())->right_subtree != nullptr && (*stack.top())->right_subtree->left_subtree != nullptr){
             binary_search_tree<tkey, tvalue>::big_left_rotation(*stack.top());
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
             static_cast<node*>((*stack.top()))->change_balance();
+
         }
         else if (balance > 1) {
             binary_search_tree<tkey, tvalue>::small_left_rotation(*stack.top());
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
             static_cast<node*>((*stack.top()))->change_balance();
         }
-        else if (balance < -1 && (*stack.top())->right_subtree != nullptr && (*stack.top())->right_subtree == (*stack.top())->right_subtree->right_subtree) {
+        else if (balance < -1 && (*stack.top())->left_subtree != nullptr && (*stack.top())->left_subtree->right_subtree != nullptr) {
             binary_search_tree<tkey, tvalue>::big_right_rotation(*stack.top());
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
             static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
@@ -742,9 +743,9 @@ tvalue AVL_tree<tkey, tvalue>::dispose_inside(std::stack<typename binary_search_
         static_cast<node*>(current)->change_balance();
         int balance = static_cast<node*>(current)->get_balance();
 
-        if (balance == 2)
+        if (balance > 1)
         {
-            int child_balance = static_cast<node*>(current->right_subtree)->get_balance();
+            int child_balance = static_cast<node*>(current->left_subtree)->get_balance();
             if (child_balance >= 0)
             {
                 binary_search_tree<tkey, tvalue>::small_left_rotation(*stack.top());
@@ -753,15 +754,15 @@ tvalue AVL_tree<tkey, tvalue>::dispose_inside(std::stack<typename binary_search_
             }
             else
             {
-                binary_search_tree<tkey, tvalue>::big_left_rotation(*stack.top());
+                binary_search_tree<tkey, tvalue>::big_right_rotation(*stack.top());
                 static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
                 static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
                 static_cast<node*>((*stack.top()))->change_balance();
             }
         }
-        else if (balance == -2)
+        else if (balance < -1)
         {
-            int child_balance = static_cast<node*>(current->left_subtree)->get_balance();
+            int child_balance = static_cast<node*>(current->right_subtree)->get_balance();
             if (child_balance <= 0)
             {
                 binary_search_tree<tkey, tvalue>::small_right_rotation(*stack.top());
@@ -770,7 +771,7 @@ tvalue AVL_tree<tkey, tvalue>::dispose_inside(std::stack<typename binary_search_
             }
             else
             {
-                binary_search_tree<tkey, tvalue>::big_right_rotation(*stack.top());
+                binary_search_tree<tkey, tvalue>::big_left_rotation(*stack.top());
                 static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::left_subtree)->change_balance();
                 static_cast<node*>((*stack.top())->binary_search_tree<tkey, tvalue>::node::right_subtree)->change_balance();
                 static_cast<node*>((*stack.top()))->change_balance();

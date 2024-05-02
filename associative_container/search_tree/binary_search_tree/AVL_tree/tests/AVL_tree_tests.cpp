@@ -420,7 +420,7 @@ TEST(AVLTreePositiveTests, test7)
             {
                     AVL_tree<int, std::string>::iterator_data(2, 2, "l", 1),
                     AVL_tree<int, std::string>::iterator_data(1, 4, "j", 2),
-                    AVL_tree<int, std::string>::iterator_data(1, 5, "b", 1),
+                    AVL_tree<int, std::string>::iterator_data(2, 5, "b", 1),
                     AVL_tree<int, std::string>::iterator_data(0, 6, "a", 3),
                     AVL_tree<int, std::string>::iterator_data(1, 8, "c", 2),
                     AVL_tree<int, std::string>::iterator_data(2, 15, "x", 1)
