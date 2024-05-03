@@ -1246,22 +1246,22 @@ protected:
     // region subtree rotations definition
 
     void small_left_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     void small_right_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     void big_left_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     void big_right_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     void double_left_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     void double_right_rotation(
-            typename binary_search_tree<tkey, tvalue>::node *&subtree_root) const;
+            typename binary_search_tree<tkey, tvalue>::node *&subtree_root, bool son_left = 0, bool son_right = 0) const;
 
     // endregion subtree rotations definition
 
@@ -3704,9 +3704,19 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::small_left_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
         ) const
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
+
     if (subtree_root != nullptr && subtree_root->right_subtree != nullptr)
     {
         node *previous_root = subtree_root;
@@ -3720,9 +3730,19 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::small_right_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
         ) const
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
+
     if (subtree_root != nullptr && subtree_root != nullptr)
     {
         node* previous_root = subtree_root;
@@ -3736,9 +3756,18 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::big_left_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
         ) const // boolics
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
     if(subtree_root != nullptr && subtree_root->right_subtree != nullptr && subtree_root->right_subtree->left_subtree != nullptr)
     {
         small_right_rotation(subtree_root->right_subtree);
@@ -3750,9 +3779,18 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::big_right_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
         ) const
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
     if(subtree_root != nullptr && subtree_root->left_subtree != nullptr && subtree_root->left_subtree->right_subtree != nullptr)
     {
         small_left_rotation(subtree_root->left_subtree);
@@ -3764,9 +3802,18 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::double_left_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
         ) const
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
     if(subtree_root != nullptr && subtree_root->right_subtree != nullptr && subtree_root->right_subtree->right_subtree != nullptr)
     {
         small_left_rotation(subtree_root);
@@ -3778,8 +3825,18 @@ template<
         typename tkey,
         typename tvalue>
 void binary_search_tree<tkey, tvalue>::double_right_rotation(
-        binary_search_tree<tkey, tvalue>::node *&subtree_root) const
+        binary_search_tree<tkey, tvalue>::node *&subtree_root,
+        bool son_left,
+        bool son_right
+        ) const
 {
+    if (son_left)
+    {
+        subtree_root = subtree_root->left_subtree;
+    } else if (son_right)
+    {
+        subtree_root = subtree_root->right_subtree;
+    }
     if(subtree_root != nullptr && subtree_root->left_subtree != nullptr && subtree_root->left_subtree->left_subtree != nullptr)
     {
         small_right_rotation(subtree_root);
