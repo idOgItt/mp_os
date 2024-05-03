@@ -23,6 +23,7 @@ private:
     struct node final:
         binary_search_tree<tkey, tvalue>::node
     {
+    public:
 
         node_color _color;
 
@@ -134,6 +135,8 @@ private:
     template<typename rb_tvalue>
     void red_black_insert(const tkey& key, rb_tvalue&& value, std::stack<typename binary_search_tree<tkey, tvalue>::node**>& stack);
 
+    void print_rb(binary_search_tree<tkey, tvalue>::node* root, int level) const noexcept;
+
     void inject_additional_data(
             typename binary_search_tree<tkey,tvalue>::node *destination,
             typename binary_search_tree<tkey,tvalue>::node const *source) const override;
@@ -157,7 +160,7 @@ private:
     inline size_t get_node_size() const noexcept override;
 
     static inline node_color get_color(
-            typename binary_search_tree<tkey,tvalue>::node* node) noexcept;
+            typename red_black_tree<tkey,tvalue>::node* node) noexcept;
 
     static inline void set_color(
             typename binary_search_tree<tkey,tvalue>::node* node,
@@ -357,18 +360,18 @@ template<typename tkey, typename tvalue>
 template<typename rb_tvalue>
 void red_black_tree<tkey, tvalue>::red_black_insert(const tkey &key, rb_tvalue &&value, std::stack<typename binary_search_tree<tkey, tvalue>::node**> & stack)
 {
-    (*stack.top()) = static_cast<typename binary_search_tree<tkey, tvalue>::node*>(static_cast<node*>(allocator_guardant::allocate_with_guard(sizeof(node), 1)));
+    (*stack.top()) = static_cast<typename binary_search_tree<tkey, tvalue>::node *>(static_cast<node *>(allocator_guardant::allocate_with_guard(
+            sizeof(node), 1)));
 
     try {
         allocator::construct(*stack.top(), key, std::forward<rb_tvalue>(value));
     }
-    catch(...)
-    {
+    catch (...) {
         allocator_guardant::deallocate_with_guard(*stack.top());
         throw;
     }
 
-    node* current_node = static_cast<node*>(*stack.top());
+    node *current_node = static_cast<node *>(*stack.top());
 
     stack.pop();
 
@@ -379,59 +382,53 @@ void red_black_tree<tkey, tvalue>::red_black_insert(const tkey &key, rb_tvalue &
     }
     current_node->change_color(node_color::RED);
 
-    while(!stack.empty())
-    {
-        node* parent = static_cast<node*>(*stack.top());
+    while (!stack.empty()) {
+        node *parent = static_cast<node *>(*stack.top());
+        stack.pop();
 
-        if(get_color(parent) == node_color::BLACK)
-        {
+        if (get_color(parent) == node_color::BLACK) {
             break;
         }
 
-        stack.pop();
+        if (stack.empty())
+        {
+            return;
+        }
 
-        node* grandparent = static_cast<node*>(*stack.top());
-        node* uncle = (parent == grandparent->left_subtree) ? static_cast<node*>(grandparent->right_subtree) : static_cast<node*>(grandparent->left_subtree);
+        node *grandparent = static_cast<node *>(*stack.top());
+        node *uncle = (parent == grandparent->left_subtree) ? static_cast<node *>(grandparent->right_subtree)
+                                                            : static_cast<node *>(grandparent->left_subtree);
 
+        // Родитель и дядя узла оба красные
         if (uncle != nullptr && uncle->_color == node_color::RED) {
             // Case 2: Parent and uncle are red, recoloring
             parent->change_color(node_color::BLACK);
             uncle->change_color(node_color::BLACK);
             grandparent->change_color(node_color::RED);
             current_node = grandparent;
-            stack.pop();
-            continue; // Continue with the grandparent node
-        }
-
-        if (parent == grandparent->left_subtree) {
-            // Case 3: Parent is red, but uncle is black or nullptr, and current node is a right child
-            if (current_node == parent->right_subtree) {
-                // Left rotation around parent
-                binary_search_tree<tkey, tvalue>::small_right_rotation(parent);
-                std::swap(parent, current_node); // Update pointers after rotation
-            }
-
-            // Case 4: Parent is red, but uncle is black or nullptr, and current node is a left child
-            // Right rotation around grandparent
-            binary_search_tree<tkey, tvalue>::small_left_rotation(&grandparent);
-            parent->change_color(node_color::BLACK);
-            grandparent->change_color(node_color::RED);
         } else {
-            // Case 3: Parent is red, but uncle is black or nullptr, and current node is a left child
-            if (current_node == parent->left_subtree) {
-                // Right rotation around parent
-                binary_search_tree<tkey, tvalue>::small_left_rotation(&parent);
-                std::swap(parent, current_node); // Update pointers after rotation
+            // Родитель красный, а дядя черный или отсутствует
+            if (current_node == parent->right_subtree && parent == grandparent->left_subtree) {
+                binary_search_tree<tkey, tvalue>::small_right_rotation((*stack.top())->left_subtree);
+                std::swap(parent-> _color, grandparent->_color);
+                std::swap(parent, current_node);
+            } else if (current_node == parent->left_subtree && parent == grandparent->right_subtree) {
+                binary_search_tree<tkey, tvalue>::small_left_rotation((*stack.top())->right_subtree);
+                std::swap(parent-> _color, grandparent->_color);
+                std::swap(parent, current_node);
             }
-
-            // Case 4: Parent is red, but uncle is black or nullptr, and current node is a right child
-            // Left rotation around grandparent
-            binary_search_tree<tkey, tvalue>::small_right_rotation(&grandparent);
+            // Родитель и узел находятся в одной линии
             parent->change_color(node_color::BLACK);
             grandparent->change_color(node_color::RED);
+            if (current_node == parent->left_subtree)
+                binary_search_tree<tkey, tvalue>::small_left_rotation(*stack.top());
+            else
+                binary_search_tree<tkey, tvalue>::small_right_rotation(*stack.top());
+            break;
         }
-        break;
     }
+    print_rb(binary_search_tree<tkey, tvalue>::_root, 0);
+    std::cout << "\n-------------------------------------------------\n" << std::endl;
 }
 
 
@@ -504,11 +501,30 @@ template<
         typename tkey,
         typename tvalue>
 typename red_black_tree<tkey, tvalue>::node_color red_black_tree<tkey, tvalue>::get_color(
-        typename binary_search_tree<tkey,tvalue>::node* node) noexcept
+        typename red_black_tree<tkey,tvalue>::node* node) noexcept
 {
-    auto *rbt_node = dynamic_cast<red_black_tree<tkey,tvalue>::node*>(node);
+    if (node != nullptr)
+        return node->_color;
+    else
+        return node_color::BLACK;
+}
 
-    return rbt_node ? rbt_node->color : node_color::BLACK;
+template<typename tkey, typename tvalue>
+void red_black_tree<tkey, tvalue>::print_rb(typename binary_search_tree<tkey, tvalue>::node* root, int level) const noexcept
+{
+    if(root == nullptr)
+    {
+        return;
+    }
+
+    print_rb(root->right_subtree, level + 1);
+    std::string color = static_cast<node*>(root)->_color == node_color::BLACK ? "BLACK" : "RED";
+    for(int i = 0, end = level; i != end; ++i)
+    {
+        std::cout << "    ";
+    }
+    std::cout << root->key << " " << root->value << " " << color << std::endl;
+    print_rb(root->left_subtree, level + 1);
 }
 
 #endif //MATH_PRACTICE_AND_OPERATING_SYSTEMS_RED_BLACK_TREE_H
