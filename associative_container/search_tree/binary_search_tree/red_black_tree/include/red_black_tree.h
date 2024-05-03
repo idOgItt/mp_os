@@ -427,6 +427,7 @@ void red_black_tree<tkey, tvalue>::red_black_insert(const tkey &key, rb_tvalue &
             break;
         }
     }
+    // TODO
     print_rb(binary_search_tree<tkey, tvalue>::_root, 0);
     std::cout << "\n-------------------------------------------------\n" << std::endl;
 }
