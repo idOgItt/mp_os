@@ -3743,7 +3743,7 @@ void binary_search_tree<tkey, tvalue>::small_right_rotation(
         subtree_root = subtree_root->right_subtree;
     }
 
-    if (subtree_root != nullptr && subtree_root != nullptr)
+    if (subtree_root != nullptr && subtree_root->left_subtree != nullptr)
     {
         node* previous_root = subtree_root;
         subtree_root = subtree_root->left_subtree;
